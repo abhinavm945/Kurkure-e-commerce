@@ -18,14 +18,12 @@ app.listen(process.env.PORT, () =>
   console.log(`Server is running on port ${process.env.PORT}`)
 );
 
-const postgresConnection = async () => {
+const connectPostGres = async () => {
   try {
-    const result = await prisma.$queryRaw`SELECT current_database()`;
-    console.log("Connected to database: ".bgBlue, result[0]);
-  } catch (e) {
-    console.error("Error connecting to database:".bgRed, e);
-  } finally {
-    await prisma.$disconnect();
+      const result = await prisma.$queryRaw`SELECT current_database()`;
+      console.log(`connected to the database: ${result[0].current_database}`);
+  } catch (error) {
+      console.error("Error connecting to database", error.message);
   }
 };
-postgresConnection();
+connectPostGres();
