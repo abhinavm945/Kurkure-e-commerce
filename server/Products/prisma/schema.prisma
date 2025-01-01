@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Product {
-  id             Int            @id @unique @default(autoincrement()) 
+  id             Int            @id @default(autoincrement()) 
   name           String
   description    String
   price          Decimal        @default(0.0)  
