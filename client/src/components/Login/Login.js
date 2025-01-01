@@ -1,37 +1,42 @@
 import React, { useState } from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { firebaseAuth } from "../../utils/FirebaseConfig";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./Login.scss";
 
 const Login = () => {
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    const {
+      user: { email },
+    } = await signInWithPopup(firebaseAuth, provider);
     try {
-      const result = await signInWithPopup(firebaseAuth, provider);
-      setUser(result.user);
+      if (email) {
+        const { data } = await axios.post(
+          "http://localhost:3050/api/auth/check-user",
+          { email }
+        );
+
+        if (!data.status) {
+          navigate("/signup");
+        }
+      }
     } catch (error) {
-      console.error("Login failed", error.message);
+      console.error("Login failed:", error.message);
     }
   };
 
   return (
     <div className="login-container">
-      {!user ? (
-        <div className="login-box">
-          <h1>Welcome</h1>
-          <button className="google-login-btn" onClick={handleGoogleLogin}>
-            Login with Google
-          </button>
-        </div>
-      ) : (
-        <div className="user-box">
-          <h1>Hello, {user.displayName}!</h1>
-          <p>Email: {user.email}</p>
-          <img src={user.photoURL} alt="User Avatar" />
-        </div>
-      )}
+      <div className="login-box">
+        <h1>Welcome</h1>
+        <button className="google-login-btn" onClick={handleGoogleLogin}>
+          Login with Google
+        </button>
+      </div>
     </div>
   );
 };
