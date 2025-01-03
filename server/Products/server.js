@@ -22,7 +22,9 @@ const connectPostGres = async () => {
     }
 };
 
-app.listen(PORT, async () => {
+
+
+app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`.bgGreen.bgBlack);
-    await connectPostGres();
+    connectPostGres();
 });
