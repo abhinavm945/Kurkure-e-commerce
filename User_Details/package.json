@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "name": "user_details",
+  "version": "1.0.0",
+  "description": "A userdetails server for e commerce",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Devagya rattan",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "colors": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "prisma": "^6.1.0"
+  }
+}
