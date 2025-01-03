@@ -1,0 +1,51 @@
+@import "variables";
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: $background-color;
+
+  .login-box,
+  .user-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+
+    h1 {
+      color: $primary-color;
+    }
+
+    p {
+      color: $text-color;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    img {
+      margin-top: 1rem;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .google-login-btn {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    color: white;
+    background: $primary-color;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: $button-hover-color;
+    }
+  }
+}
