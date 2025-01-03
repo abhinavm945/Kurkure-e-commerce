@@ -1,4 +1,5 @@
 import getPrismaInstance from "../utlis/PrismaClient.js";
+import bcrypt from "bcrypt"; // Use bcrypt for hashing passwords
 
 export const checkUser = async (req, res, next) => {
   try {
@@ -20,36 +21,51 @@ export const checkUser = async (req, res, next) => {
 
 export const signupUser = async (req, res, next) => {
   try {
-    const { email, username, password, profile } = req.body;
+    const { email, name, username, password, profile } = req.body;
 
-    if (!email || !username || !password) {
-      return res.json({ msg: "All fields are required", status: false });
+    // Validate required fields
+    if (!email || !name || !username || !password) {
+      return res
+        .status(400)
+        .json({ msg: "All fields are required", status: false });
     }
 
     const prisma = getPrismaInstance();
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    // Check if user already exists with email or username
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
+    });
+
     if (existingUser) {
-      return res.json({ msg: "User already exists", status: false });
+      return res
+        .status(400)
+        .json({ msg: "User already exists", status: false });
     }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
     const newUser = await prisma.user.create({
       data: {
         email,
+        name,
         username,
-        password, // Hash the password before storing in production
+        password: hashedPassword, // Store hashed password
         profile,
       },
     });
 
-    return res.json({
+    return res.status(201).json({
       msg: "User registered successfully",
       status: true,
       data: newUser,
     });
   } catch (err) {
+    console.error("Signup Error:", err);
     next(err);
   }
 };

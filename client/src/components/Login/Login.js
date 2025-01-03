@@ -7,13 +7,14 @@ import "./Login.scss";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null); // Use null for initial state
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
-    const {
-      user: { email },
-    } = await signInWithPopup(firebaseAuth, provider);
     try {
+      const result = await signInWithPopup(firebaseAuth, provider);
+      const { email, photoURL, displayName: name } = result.user;
+
       if (email) {
         const { data } = await axios.post(
           "http://localhost:3050/api/auth/check-user",
@@ -21,7 +22,10 @@ const Login = () => {
         );
 
         if (!data.status) {
-          navigate("/signup");
+          navigate("/signup", { state: { email, photoURL, name } });
+        } else {
+          setUserData({ email, photoURL, name });
+          console.log("User logged in:", email);
         }
       }
     } catch (error) {
@@ -31,12 +35,20 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <div className="login-box">
-        <h1>Welcome</h1>
-        <button className="google-login-btn" onClick={handleGoogleLogin}>
-          Login with Google
-        </button>
-      </div>
+      {!userData ? (
+        <div className="login-box">
+          <h1>Welcome</h1>
+          <button className="google-login-btn" onClick={handleGoogleLogin}>
+            Login with Google
+          </button>
+        </div>
+      ) : (
+        <div className="user-box">
+          <h1>Hello, {userData.name}!</h1>
+          <p>Email: {userData.email}</p>
+          <img src={userData.photoURL} alt="User Avatar" />
+        </div>
+      )}
     </div>
   );
 };
