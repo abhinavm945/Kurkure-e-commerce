@@ -29,18 +29,23 @@ export const getUserDetails = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 export const details = async (req, res) => {
   try {
     const prisma = getPrismaInstance();
 
-    const { userId, fullName, phone, address } = req.body;
+    let { userId, fullName, phone, address } = req.body;
 
     // Validate input
     if (!userId || !fullName || !phone || !address) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
+    }
+
+    // Convert userId to an integer
+    userId = parseInt(userId, 10);
+    if (isNaN(userId)) {
+      return res.status(400).json({ success: false, message: "Invalid User ID" });
     }
 
     // Validate that the user exists
@@ -52,28 +57,14 @@ export const details = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
-=======
-
-export const details = async (req, res) => {
-  try {
-    const { fullName, phone, address } = req.body;
-
-    // Validate input
-    if (!fullName || !phone || !address) {
-      return res.status(400).json({ success: false, message: "Invalid input" });
->>>>>>> f5a9dd278589e923c7982075367776d85920f594
     }
 
     // Create details for the user
     const newDetails = await prisma.details.create({
-      data: { fullName, phone, address },
+      data: { userId, fullName, phone, address },
     });
 
-<<<<<<< HEAD
     res.status(201).json(newDetails);
-=======
-    res.status(201).json({ success: true, data: newDetails });
->>>>>>> f5a9dd278589e923c7982075367776d85920f594
   } catch (error) {
     console.error("Error creating user details:", error);
     res.status(500).json({ success: false, message: error.message });

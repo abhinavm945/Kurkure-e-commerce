@@ -23,12 +23,18 @@ const UserDetails = () => {
     setMessage("");
 
     try {
+      // Ensure userId is a number
+      const formDataWithNumber = {
+        ...formData,
+        userId: parseInt(formData.userId, 10),
+      };
+
       const response = await fetch("http://localhost:9001/user/post-details", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formDataWithNumber),
       });
 
       const data = await response.json();
@@ -41,7 +47,9 @@ const UserDetails = () => {
           userId: "",
         });
       } else {
-        setMessage(data.message || "An error occurred while submitting details.");
+        setMessage(
+          data.message || "An error occurred while submitting details."
+        );
       }
     } catch (error) {
       setMessage("Server error. Please try again later.");

@@ -1,27 +1,34 @@
 import getPrismaInstance from "../utlis/PrismaClient.js";
-import bcrypt from "bcrypt"; // Use bcrypt for hashing passwords
+import bcrypt from "bcrypt";
 
 export const checkUser = async (req, res, next) => {
   try {
     const { email } = req.body;
+
+    // Validate input
     if (!email) {
-      return res.json({ msg: "Email is required", status: false });
+      return res.status(400).json({ msg: "Email is required", status: false });
     }
+
     const prisma = getPrismaInstance();
+
+    // Check if user exists
     const user = await prisma.user.findUnique({ where: { email } });
+
     if (!user) {
-      return res.json({ msg: "User not found", status: false });
-    } else {
-      return res.json({ msg: "User Found", status: true, data: user });
+      return res.status(404).json({ msg: "User not found", status: false });
     }
+
+    return res.status(200).json({ msg: "User found", status: true, data: user });
   } catch (err) {
-    next(err);
+    console.error("Error in checkUser:", err);
+    next(err); // Pass error to error-handling middleware
   }
 };
 
 export const signupUser = async (req, res, next) => {
   try {
-    const { email, name, username, password, profile,userprofile } = req.body;
+    const { email, name, username, password, profile } = req.body;
 
     // Validate required fields
     if (!email || !name || !username || !password) {
@@ -42,7 +49,7 @@ export const signupUser = async (req, res, next) => {
     if (existingUser) {
       return res
         .status(400)
-        .json({ msg: "User already exists", status: false });
+        .json({ msg: "Email or username already exists", status: false });
     }
 
     // Hash the password
@@ -54,9 +61,8 @@ export const signupUser = async (req, res, next) => {
         email,
         name,
         username,
-        password: hashedPassword, // Store hashed password
-        profile,
-        userprofile,
+        password: hashedPassword,
+        profile: profile || "default-avatar-url.png", // Set default if profile is empty
       },
     });
 
@@ -67,6 +73,6 @@ export const signupUser = async (req, res, next) => {
     });
   } catch (err) {
     console.error("Signup Error:", err);
-    next(err);
+    next(err); // Pass error to error-handling middleware
   }
 };
