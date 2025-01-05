@@ -40,6 +40,5 @@ model Details {
   fullName String
   phone    String?
   address  String?
- 
 }
 
