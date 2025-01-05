@@ -1,16 +1,20 @@
-// import getPrismaInstance from "../utils/PrismaClient.js";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import getPrismaInstance from "../utils/PrismaClient.js";
+
 export const getUserDetails = async (req, res) => {
   try {
-    const { userId } = req.params; // Fix the destructuring here
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
+    const { userId } = req.params;
+
+    // Validate userId
+    const parsedUserId = parseInt(userId, 10);
+    if (isNaN(parsedUserId)) {
+      return res.status(400).json({ message: "Invalid User ID" });
     }
-    // const prisma = getPrismaInstance();
+
+    const prisma = getPrismaInstance();
+
     const getUser = await prisma.user.findUnique({
       where: {
-        id: parseInt(userId, 10), // Ensure the user ID is an integer if it's stored as an integer
+        id: parsedUserId,
       },
     });
 
@@ -24,14 +28,25 @@ export const getUserDetails = async (req, res) => {
     return res.status(500).json({ message: "Error fetching user details" });
   }
 };
+
 export const details = async (req, res) => {
   try {
-    // const prisma = getPrismaInstance();
+    const prisma = getPrismaInstance();
 
     const { userId, fullName, phone, address } = req.body;
 
+    // Validate input
+    if (!userId || !fullName || !phone || !address) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
     // Validate that the user exists
-    const userExists = prisma.user.findUnique({ where: { id: userId } });
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
     if (!userExists) {
       return res
         .status(404)
@@ -42,8 +57,10 @@ export const details = async (req, res) => {
     const newDetails = await prisma.details.create({
       data: { userId, fullName, phone, address },
     });
+
     res.status(201).json(newDetails);
   } catch (error) {
+    console.error("Error creating user details:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
