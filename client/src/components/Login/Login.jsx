@@ -16,10 +16,14 @@ const Login = () => {
       const { email, photoURL, displayName: name } = result.user;
 
       if (email) {
-        const { data } = await axios.post(
-          "http://localhost:3050/api/auth/check-user",
-          { email }
-        );
+        const { data } = await axios
+          .post("http://localhost:3050/api/auth/check-user", { email })
+          .then((res) => {
+            navigate(`/home/${res.data.data.id}`);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
 
         if (!data.status) {
           navigate("/signup", { state: { email, photoURL, name } });

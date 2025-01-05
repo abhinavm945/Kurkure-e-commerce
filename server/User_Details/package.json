@@ -1,5 +1,5 @@
 {
-  "type":"module",
+  "type": "module",
   "name": "user_details",
   "version": "1.0.0",
   "description": "A user details folder",
@@ -15,6 +15,7 @@
     "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "prisma": "^6.1.0"
   }
 }
