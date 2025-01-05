@@ -7,11 +7,11 @@ const Signup = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!location.state?.email) {
-      navigate("/login");
-    }
-  }, [location.state, navigate]);
+  // useEffect(() => {
+  //   if (!location.state?.email) {
+  //     navigate("/login");
+  //   }
+  // }, [location.state, navigate]);
 
   const [formData, setFormData] = useState({
     email: location.state?.email ?? "",
@@ -42,6 +42,7 @@ const Signup = () => {
       if (data.status) {
         alert("Signup successful!");
         navigate("/home");
+        console.log(formData);
       } else {
         alert(data.msg);
       }

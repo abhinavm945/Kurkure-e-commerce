@@ -25,8 +25,25 @@ CREATE TABLE "Product" (
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Details" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "fullName" TEXT NOT NULL,
+    "phone" TEXT,
+    "address" TEXT,
+
+    CONSTRAINT "Details_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Details_userId_key" ON "Details"("userId");
+
+-- AddForeignKey
+ALTER TABLE "Details" ADD CONSTRAINT "Details_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
