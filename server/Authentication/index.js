@@ -5,7 +5,7 @@ import AuthRoutes from "./routes/AuthRoutes.js";
 import { PrismaClient } from "@prisma/client";
 import colors from "colors";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 const app = express();
 const prisma = new PrismaClient();
 
@@ -14,8 +14,8 @@ app.use(express.json());
 
 app.use("/api/auth", AuthRoutes);
 
-app.listen(process.env.PORT, () =>
-  console.log(`Server is running on port ${process.env.PORT}`.bgGreen)
+app.listen(process.env.USER_PORT, () =>
+  console.log(`Server is running on port ${process.env.USER_PORT}`.bgGreen)
 );
 
 const connectPostGres = async () => {
@@ -26,8 +26,7 @@ const connectPostGres = async () => {
     );
   } catch (error) {
     console.error("Error connecting to database".bgRed.white, error.message);
-  }
-  finally {
+  } finally {
     await prisma.$disconnect();
   }
 };
