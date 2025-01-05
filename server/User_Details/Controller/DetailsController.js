@@ -29,6 +29,7 @@ export const getUserDetails = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 export const details = async (req, res) => {
   try {
     const prisma = getPrismaInstance();
@@ -51,16 +52,31 @@ export const details = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
+=======
+
+export const details = async (req, res) => {
+  try {
+    const { fullName, phone, address } = req.body;
+
+    // Validate input
+    if (!fullName || !phone || !address) {
+      return res.status(400).json({ success: false, message: "Invalid input" });
+>>>>>>> f5a9dd278589e923c7982075367776d85920f594
     }
 
     // Create details for the user
     const newDetails = await prisma.details.create({
-      data: { userId, fullName, phone, address },
+      data: { fullName, phone, address },
     });
 
+<<<<<<< HEAD
     res.status(201).json(newDetails);
+=======
+    res.status(201).json({ success: true, data: newDetails });
+>>>>>>> f5a9dd278589e923c7982075367776d85920f594
   } catch (error) {
     console.error("Error creating user details:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

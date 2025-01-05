@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -21,17 +20,13 @@ model User {
   password  String
   createdAt DateTime @default(now())
   profile   String
-<<<<<<< HEAD
-  details   Details? // One-to-one relationship with Details
-=======
->>>>>>> f5a9dd278589e923c7982075367776d85920f594
 }
 
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
   description String
-  price       Decimal  @default(0.0) @db.Decimal
+  price       Decimal  @default(0.0)
   stock       Int
   image       String?
   createdAt   DateTime @default(now())
@@ -40,13 +35,9 @@ model Product {
 
 model Details {
   id       Int     @id @default(autoincrement())
+  userId   Int     @unique
   fullName String
   phone    String?
   address  String?
-<<<<<<< HEAD
-=======
 }
->>>>>>> f5a9dd278589e923c7982075367776d85920f594
 
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
