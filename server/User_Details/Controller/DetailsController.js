@@ -1,13 +1,13 @@
+// import getPrismaInstance from "../utils/PrismaClient.js";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-
 export const getUserDetails = async (req, res) => {
   try {
     const { userId } = req.params; // Fix the destructuring here
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
-
+    // const prisma = getPrismaInstance();
     const getUser = await prisma.user.findUnique({
       where: {
         id: parseInt(userId, 10), // Ensure the user ID is an integer if it's stored as an integer
@@ -24,32 +24,26 @@ export const getUserDetails = async (req, res) => {
     return res.status(500).json({ message: "Error fetching user details" });
   }
 };
-console.log(prisma.profile);
 export const details = async (req, res) => {
   try {
-    const { fullName, phone, address } = req.body;
-    const { userId } = req.params;
+    // const prisma = getPrismaInstance();
 
-    // Ensure userId is an integer
-    const parsedUserId = parseInt(userId, 10);
-    if (isNaN(parsedUserId)) {
-      return res.status(400).json({ message: "Invalid userId." });
+    const { userId, fullName, phone, address } = req.body;
+
+    // Validate that the user exists
+    const userExists = prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    // Create a new user profile
-    const postDetails = await prisma.profile.create({
-      data: {
-        userId: parsedUserId,
-        fullName,
-        phone,
-        address,
-        user,
-      },
+    // Create details for the user
+    const newDetails = await prisma.details.create({
+      data: { userId, fullName, phone, address },
     });
-
-    return res.status(200).json(postDetails);
+    res.status(201).json(newDetails);
   } catch (error) {
-    console.error("Error posting user details:", error);
-    return res.status(500).json({ message: "Error posting user details" });
+    res.status(500).json({ success: false, message: error.message });
   }
 };

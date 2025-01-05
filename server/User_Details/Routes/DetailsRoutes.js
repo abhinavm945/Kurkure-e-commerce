@@ -3,7 +3,7 @@ import { getUserDetails,details } from "../Controller/DetailsController.js";
 
 const router = Router();
 
+router.post("/post-details",details);
 router.get("/user-details/:userId", getUserDetails);
-router.post("/post-details/:userId",details)
 
 export default router;
