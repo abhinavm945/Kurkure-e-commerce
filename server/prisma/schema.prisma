@@ -20,7 +20,6 @@ model User {
   password  String
   createdAt DateTime @default(now())
   profile   String
-  
 }
 
 model Product {
@@ -36,7 +35,6 @@ model Product {
 
 model Details {
   id       Int     @id @default(autoincrement())
-  userId   Int     @unique
   fullName String
   phone    String?
   address  String?

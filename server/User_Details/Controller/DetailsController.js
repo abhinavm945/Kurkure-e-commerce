@@ -24,26 +24,25 @@ export const getUserDetails = async (req, res) => {
     return res.status(500).json({ message: "Error fetching user details" });
   }
 };
+
+
 export const details = async (req, res) => {
   try {
-    // const prisma = getPrismaInstance();
+    const { fullName, phone, address } = req.body;
 
-    const { userId, fullName, phone, address } = req.body;
-
-    // Validate that the user exists
-    const userExists = prisma.user.findUnique({ where: { id: userId } });
-    if (!userExists) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+    // Validate input
+    if (!fullName || !phone || !address) {
+      return res.status(400).json({ success: false, message: "Invalid input" });
     }
 
     // Create details for the user
     const newDetails = await prisma.details.create({
-      data: { userId, fullName, phone, address },
+      data: { fullName, phone, address },
     });
-    res.status(201).json(newDetails);
+
+    res.status(201).json({ success: true, data: newDetails });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
