@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import "./UserDetails.scss";
-
 const UserDetails = () => {
+  const { username } = useParams();
+  console.log(username);
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -24,18 +26,16 @@ const UserDetails = () => {
 
     try {
       // Ensure userId is a number
-      const formDataWithNumber = {
-        ...formData,
-        userId: parseInt(formData.userId, 10),
-      };
 
-      const response = await fetch("http://localhost:9001/user/post-details", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formDataWithNumber),
-      });
+      const response = await fetch(
+        `http://localhost:9001/user/post-details/${username}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -57,7 +57,6 @@ const UserDetails = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="user-details-container">
       <form className="user-details-form" onSubmit={handleSubmit}>
@@ -98,18 +97,6 @@ const UserDetails = () => {
             rows="3"
             required
           ></textarea>
-        </div>
-        <div className="form-group">
-          <label htmlFor="userId">User ID</label>
-          <input
-            type="number"
-            id="userId"
-            name="userId"
-            value={formData.userId}
-            onChange={handleChange}
-            placeholder="Enter your user ID"
-            required
-          />
         </div>
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Submitting..." : "Submit"}
