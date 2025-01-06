@@ -55,11 +55,11 @@ export const details = async (req, res) => {
     //   where: { id: userId },
     // });
 
-    // if (!userExists) {
-    //   return res
-    //     .status(404)
-    //     .json({ success: false, message: "User not found" });
-    // }
+    if (!userExists) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
 
     // Create details for the user
     const newDetails = await prisma.details.create({
