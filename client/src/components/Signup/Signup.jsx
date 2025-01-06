@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Signup.scss";
@@ -6,12 +6,6 @@ import "./Signup.scss";
 const Signup = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!location.state?.email) {
-      navigate("/login");
-    }
-  }, [location.state, navigate]);
 
   const [formData, setFormData] = useState({
     email: location.state?.email ?? "",
@@ -34,18 +28,25 @@ const Signup = () => {
     }
 
     try {
-      const { data } = await axios.post(
+      const response = await axios.post(
         "http://localhost:3050/api/auth/signup",
         formData
       );
 
+      const data = response.data;
+
       if (data.status) {
         alert("Signup successful!");
-        navigate("/home");
+        navigate(`/home/${data.data.id}`);
       } else {
-        alert(data.msg);
+        alert(data.msg || "An error occurred during signup.");
       }
     } catch (error) {
+      if (error.response?.data?.msg) {
+        alert(error.response.data.msg); // Display specific error from the server
+      } else {
+        alert("Signup failed. Please try again.");
+      }
       console.error("Signup failed:", error.message);
     }
   };

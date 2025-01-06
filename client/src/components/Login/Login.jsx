@@ -7,7 +7,7 @@ import "./Login.scss";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(null); // Use null for initial state
+  const [userData, setUserData] = useState(null);
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -16,16 +16,19 @@ const Login = () => {
       const { email, photoURL, displayName: name } = result.user;
 
       if (email) {
-        const { data } = await axios.post(
+        const response = await axios.post(
           "http://localhost:3050/api/auth/check-user",
           { email }
         );
 
+        const data = response.data;
+
         if (!data.status) {
+          // Navigate to signup if user does not exist
           navigate("/signup", { state: { email, photoURL, name } });
         } else {
-          setUserData({ email, photoURL, name });
-          console.log("User logged in:", email);
+          // Navigate to home page if user exists
+          navigate(`/userdetails/${data.data.id}`);
         }
       }
     } catch (error) {
