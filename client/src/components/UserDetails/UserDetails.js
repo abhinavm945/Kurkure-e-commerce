@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import "./UserDetails.scss";
 const UserDetails = () => {
-  const { username } = useParams();
-  console.log(username);
+  const {id}= useParams();
+  console.log(id);
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -26,16 +26,18 @@ const UserDetails = () => {
 
     try {
       // Ensure userId is a number
+      const formDataWithNumber = {
+        ...formData,
+        userId: parseInt(formData.userId, 10),
+      };
 
-      const response = await fetch(
-        `http://localhost:9001/user/post-details/${username}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:9001/user/post-details/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataWithNumber),
+      });
 
       const data = await response.json();
       if (response.ok) {
