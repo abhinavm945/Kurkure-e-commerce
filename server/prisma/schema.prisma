@@ -37,10 +37,9 @@ model Product {
 
 model Details {
   id       Int     @id @default(autoincrement())
-  userId   Int     @unique
+  userId   String     @unique
   fullName String
   phone    String?
   address  String?
-
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User    @relation(fields: [userId], references: [username], onDelete: Cascade)
 }

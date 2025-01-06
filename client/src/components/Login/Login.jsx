@@ -4,11 +4,11 @@ import { firebaseAuth } from "../../utils/FirebaseConfig";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.scss";
-
+import { useParams } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-
+  const {id} = useParams();
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -22,13 +22,13 @@ const Login = () => {
         );
 
         const data = response.data;
-
+        console.log(data);
         if (!data.status) {
           // Navigate to signup if user does not exist
           navigate("/signup", { state: { email, photoURL, name } });
         } else {
           // Navigate to home page if user exists
-          navigate(`/userdetails/${data.data.id}`);
+          navigate(`/userdetails/${data.data.username}`);
         }
       }
     } catch (error) {
