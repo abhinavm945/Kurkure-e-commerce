@@ -5,7 +5,7 @@ import AuthRoutes from "./routes/AuthRoutes.js";
 import { PrismaClient } from "@prisma/client";
 import colors from "colors";
 
-dotenv.config({ path: "../.env" });
+dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 

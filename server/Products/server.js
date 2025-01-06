@@ -3,15 +3,16 @@ import colors from "colors";
 import { PrismaClient } from "@prisma/client";
 import { config } from "dotenv";
 import cors from "cors";
+import ProductRoutes from "./Routes/ProductRoutes.js";
 
 config();
 
 const prisma = new PrismaClient();
 const app = express();
-const PORT = 8080;
-
+const PORT = process.env.PORT;
 app.use(cors());
 app.use(express.json());
+app.use("/items",ProductRoutes);
 
 const connectPostGres = async () => {
   try {
@@ -23,7 +24,6 @@ const connectPostGres = async () => {
     console.error("Error connecting to database".bgRed.white, error.message);
   }
 };
-
 
 
 app.listen(PORT, () => {
