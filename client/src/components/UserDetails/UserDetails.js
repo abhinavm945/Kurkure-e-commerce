@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import "./UserDetails.scss";
-
 const UserDetails = () => {
+  const {id}= useParams();
+  console.log(id);
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -29,7 +31,7 @@ const UserDetails = () => {
         userId: parseInt(formData.userId, 10),
       };
 
-      const response = await fetch("http://localhost:9001/user/post-details", {
+      const response = await fetch(`http://localhost:9001/user/post-details/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,7 +59,6 @@ const UserDetails = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="user-details-container">
       <form className="user-details-form" onSubmit={handleSubmit}>
@@ -98,18 +99,6 @@ const UserDetails = () => {
             rows="3"
             required
           ></textarea>
-        </div>
-        <div className="form-group">
-          <label htmlFor="userId">User ID</label>
-          <input
-            type="number"
-            id="userId"
-            name="userId"
-            value={formData.userId}
-            onChange={handleChange}
-            placeholder="Enter your user ID"
-            required
-          />
         </div>
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Submitting..." : "Submit"}
