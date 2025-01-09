@@ -28,7 +28,7 @@ const Login = () => {
           navigate("/signup", { state: { email, photoURL, name } });
         } else {
           // Navigate to home page if user exists
-          navigate(`/userdetails/${data.data.id}`);
+          navigate(`/home/${data.data.id}`);
         }
       }
     } catch (error) {
