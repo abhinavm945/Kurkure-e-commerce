@@ -28,3 +28,16 @@ export const createProduct = async (req, res) => {
       res.status(500).json({ success: false, message: error.message });
   }
 }
+
+
+
+export const getProducts= async (req,res)=>{
+    const prisma = getPrismaInstance();
+    try {
+        const products=await prisma.product.findMany();
+        res.status(200).json({success:true, data:products})
+    } catch (error) {
+        console.log("Not able to fetch the Products from the database : ",error);
+        res.status(500).json({success:false , messsage:"Failed to fetch the Products"});
+    }
+}
