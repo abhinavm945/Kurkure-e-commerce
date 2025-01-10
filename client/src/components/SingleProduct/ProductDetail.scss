@@ -1,0 +1,107 @@
+.product-details {
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
+  font-family: "Arial", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .product-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  .product-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+
+    .product-details-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .product-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .product-rating {
+      font-size: 16px;
+      color: #f0c14b;
+      margin-bottom: 15px;
+    }
+
+    .product-price {
+      font-size: 24px;
+      font-weight: bold;
+      color: #b12704;
+      margin-bottom: 15px;
+    }
+
+    .product-description {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .product-stock {
+      font-size: 16px;
+      color: #28a745;
+      margin-bottom: 20px;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 15px;
+
+      .buy-now-button,
+      .add-to-cart-button {
+        padding: 12px 24px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+        &.buy-now-button {
+          background-color: #ffa41c;
+          color: white;
+
+          &:hover {
+            background-color: #ff8c00;
+          }
+        }
+
+        &.add-to-cart-button {
+          background-color: #007bff;
+          color: white;
+
+          &:hover {
+            background-color: #0056b3;
+          }
+        }
+      }
+    }
+  }
+}

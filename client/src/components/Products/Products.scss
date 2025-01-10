@@ -19,6 +19,11 @@
       overflow: hidden;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   
+      a {
+        text-decoration: none;  // Removes underline
+        color: inherit;         // Removes the default blue link color and inherits the text color
+      }
+  
       .product-card-image {
         width: 100%;
         height: 200px;

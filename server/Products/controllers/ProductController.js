@@ -1,3 +1,4 @@
+import { json } from "express";
 import getPrismaInstance from "../utils/PrismaClient.js"
 
 export const createProduct = async (req, res) => {
@@ -39,5 +40,35 @@ export const getProducts= async (req,res)=>{
     } catch (error) {
         console.log("Not able to fetch the Products from the database : ",error);
         res.status(500).json({success:false , messsage:"Failed to fetch the Products"});
+    }
+}
+
+
+export const getProductById=async(req,res)=>{
+    const prisma=getPrismaInstance();
+    const {id} =req.params;
+    try {
+        const productById=await prisma.product.findUnique({
+            where: {
+                id:parseInt(id,10),
+            },
+        });
+
+        if(!productById){
+            return res.status(404).json({
+                success:false,
+                message: "Product not found",
+            });
+        }
+        res.status(200).json({
+            success:true,
+            data:productById,
+        })
+    } catch (error) {
+        console.log("Error Fetching the product Detail : ",error);
+        res.status(500).json({
+            success:false,
+            message: "failed to fetch",
+        });
     }
 }
