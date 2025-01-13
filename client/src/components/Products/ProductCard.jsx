@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product ,id}) => {
   return (
     <div className="product-card">
-      <Link to={`/product/${product.id}`} className="no-underline">
+      <Link to={`/product/${product.id}?userId=${id}`} className="no-underline">
         <img
           src={product.image}
           alt={product.name}
@@ -15,6 +15,7 @@ const ProductCard = ({ product }) => {
           <p className="product-description">{product.description}</p>
           <p className="product-price">Rs: {product.price}</p>
           <p className="product-stock">Stock: {product.stock}</p>
+          
         </div>
       </Link>
     </div>

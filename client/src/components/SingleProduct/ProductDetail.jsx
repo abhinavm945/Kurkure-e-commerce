@@ -1,18 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
+import queryString from "query-string";
 import "./ProductDetail.scss";
 
 const ProductDetail = () => {
-  const { id } = useParams();
+  const { id: productId } = useParams();
+  const location = useLocation();
+  const { userId } = queryString.parse(location.search);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+const addToCart=async ()=>{
+try {
+  const response=await axios.post("http://localhost:8084/cart/addToCart",
+    {userId,productId}
+  );
+if(response.data.success){
+  alert(response.data.message || "Product is added to the cart.")
+}else{
+  alert(response.data.message || "failed to add the Product to the cart."
+  )
+}
+} catch (err) {
+  console.error("Error adding product to cart:", err);
+      alert("Failed to add product to cart. Please try again later.");
+}
+}
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:8081/items/getproducts/${id}`);
+        const response = await axios.get(`http://localhost:8081/items/getproducts/${productId}`);
         if (response.data.success) {
           setProduct(response.data.data);
         } else {
@@ -27,7 +45,7 @@ const ProductDetail = () => {
     };
 
     fetchProductDetails();
-  }, [id]);
+  }, [productId]);
 
   if (loading) return <div className="loading">Loading product details...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -50,8 +68,8 @@ const ProductDetail = () => {
           <p className="product-description">{product.description}</p>
           <p className="product-stock">Stock: {product.stock > 0 ? "In Stock" : "Out of Stock"}</p>
           <div className="product-actions">
-            <button className="buy-now-button">Buy Now</button>
-            <button className="add-to-cart-button">Add to Cart</button>
+            <button className="buy-now-button" onClick={addToCart}>Buy Now</button>
+            <button className="add-to-cart-button" onClick={addToCart}>Add to Cart</button>
           </div>
         </div>
       </div>

@@ -2,8 +2,9 @@ import getPrismaInstance from "../utils/PrismaClient.js";
 
 export const addToCart=async(req,res)=>{
 const prisma =getPrismaInstance();
-const {userId,productId}=req.body;
-
+let {userId,productId}=req.body;
+userId = parseInt(userId);
+productId = parseInt(productId);
 if(!userId || !productId){
     return res.status(400).json({
         success:false,
@@ -53,6 +54,7 @@ try {
     res.status(500).json({
         success:false,
         message:"Failed to add product to the cart.",
+        error: error.message,
     });
 }
 };
