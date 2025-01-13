@@ -12,6 +12,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 const {id}=useParams();
+console.log(id);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -41,7 +42,7 @@ const {id}=useParams();
     <Navbar/>
     <div className="product-page">
       <h1 className="product-title">Product List</h1>
-      <ProductList products={products} />
+      <ProductList products={products} id={id} />
     </div>
   </div>;
 }
