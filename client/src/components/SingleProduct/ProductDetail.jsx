@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import queryString from "query-string";
 import "./ProductDetail.scss";
@@ -11,6 +11,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 const addToCart=async ()=>{
 try {
   const response=await axios.post("http://localhost:8084/cart/addToCart",
@@ -27,6 +28,15 @@ if(response.data.success){
       alert("Failed to add product to cart. Please try again later.");
 }
 }
+const nav = () => {
+  navigate(`/cart/${userId}`);
+};
+
+
+const handleBuyNow = () => {
+  addToCart(); 
+  nav(); 
+};
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -68,7 +78,7 @@ if(response.data.success){
           <p className="product-description">{product.description}</p>
           <p className="product-stock">Stock: {product.stock > 0 ? "In Stock" : "Out of Stock"}</p>
           <div className="product-actions">
-            <button className="buy-now-button" onClick={addToCart}>Buy Now</button>
+            <button className="buy-now-button" onClick={handleBuyNow}>Buy Now</button>
             <button className="add-to-cart-button" onClick={addToCart}>Add to Cart</button>
           </div>
         </div>
