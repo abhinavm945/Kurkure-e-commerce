@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./Cart.scss"; // Import your styling
-
+import { useNavigate } from "react-router-dom";
 const Cart = () => {
   const { id } = useParams(); // Get the userId from the URL params
   console.log("User ID:", id);
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate();
   // Calculate total price
   const calculateTotal = () => {
     return cart.reduce((total, cartProduct) => {
@@ -20,7 +20,9 @@ const Cart = () => {
   useEffect(() => {
     const fetchCartProducts = async () => {
       try {
-        const response = await axios.get(`http://localhost:8084/cart/getCart/${id}`);
+        const response = await axios.get(
+          `http://localhost:8084/cart/getCart/${id}`
+        );
         if (response.data.success) {
           setCart(response.data.data); // Set the cart data
         } else {
@@ -33,7 +35,7 @@ const Cart = () => {
         setLoading(false);
       }
     };
-  
+
     fetchCartProducts();
   }, [id]);
 
@@ -41,6 +43,16 @@ const Cart = () => {
   if (error) return <div className="error">{error}</div>;
 
   const total = cart ? calculateTotal() : 0;
+  const paymentsFunc = async () => {
+    // navigate(`/userdetails/${id}`);
+    let response = await axios.post("http://localhost:9000/payment", {
+      price: total,
+    });
+    if (response.status === 200) {
+      console.log(response.data);
+      alert("Payment Successful");
+    }
+  };
 
   return (
     <div className="cart-page">
@@ -58,9 +70,13 @@ const Cart = () => {
               />
               <div className="cart-item-details">
                 <h3 className="cart-item-name">{cartProduct.product.name}</h3>
-                <p className="cart-item-description">{cartProduct.product.description}</p>
+                <p className="cart-item-description">
+                  {cartProduct.product.description}
+                </p>
                 <p className="cart-item-price">₹{cartProduct.product.price}</p>
-                <p className="cart-item-quantity">Quantity: {cartProduct.quantity}</p>
+                <p className="cart-item-quantity">
+                  Quantity: {cartProduct.quantity}
+                </p>
               </div>
             </div>
           ))}
@@ -71,8 +87,9 @@ const Cart = () => {
 
       {/* Cart Summary */}
       <div className="cart-summary">
-       
-        <button className="checkout-button">Total Price is : ₹{total.toFixed(2)} click Here to Proceed to Payment</button>
+        <button onClick={paymentsFunc} className="checkout-button">
+          Total Price is : ₹{total.toFixed(2)} click Here to Proceed to Payment
+        </button>
       </div>
     </div>
   );
