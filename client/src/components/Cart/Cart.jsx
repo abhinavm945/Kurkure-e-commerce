@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./Cart.scss"; // Import your styling
 import { useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
+
 const Cart = () => {
   const { id } = useParams(); // Get the userId from the URL params
   console.log("User ID:", id);
@@ -44,13 +46,38 @@ const Cart = () => {
 
   const total = cart ? calculateTotal() : 0;
   const paymentsFunc = async () => {
-    // navigate(`/userdetails/${id}`);
-    let response = await axios.post("http://localhost:9000/payment", {
-      price: total,
-    });
-    if (response.status === 200) {
-      console.log(response.data);
-      alert("Payment Successful");
+    console.log("Cart data before formatting:", cart);
+
+    const formattedCart = cart.map((cartProduct) => ({
+      name: cartProduct.product.name,
+      price: cartProduct.product.price,
+      quantity: cartProduct.quantity,
+    }));
+
+    console.log("Formatted Cart Data:", formattedCart); // Debugging
+
+    try {
+      const stripe = await loadStripe(
+        `pk_test_51NSixySI3j3qXOu7sO4QJ9ZeZkBCZ8BTApSHMmBRa6cNpnMpDwuK3sv4n5HeYK89BRVO68y1npr1AelDAoiAbsru0091Tqtxil`
+      );
+
+      const response = await axios.post("http://localhost:9000/payment", {
+        products: formattedCart,
+      });
+
+      console.log("Server response:", response.data);
+
+      const { id } = response.data;
+      const result = await stripe.redirectToCheckout({
+        sessionId: id,
+      });
+
+      if (result.error) {
+        console.error("Stripe error:", result.error.message);
+      }
+    } catch (err) {
+      console.error("Payment failed:", err.message);
+      alert("Payment failed. Please try again.");
     }
   };
 
