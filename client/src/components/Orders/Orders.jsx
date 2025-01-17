@@ -4,11 +4,12 @@ import { useParams } from "react-router-dom";
 import "./Orders.scss";
 
 const Orders = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Assuming 'id' is the user ID from the URL
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch orders for the user
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -29,6 +30,37 @@ const Orders = () => {
     };
 
     fetchOrders();
+  }, [id]);
+
+  // Post a new order (example usage)
+  useEffect(() => {
+    const postOrder = async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:2000/order/pushOrder",
+          {
+            userId: id, // User ID from the URL params
+            price: 500, // Example price
+            payment: "Online", // Payment method
+            cartId: 1, // Example cart ID
+          }
+        );
+
+        if (response.data.success) {
+          console.log("Order successfully pushed:", response.data);
+          // Optionally refetch orders after posting
+          setOrders((prevOrders) => [...prevOrders, response.data.data]);
+        } else {
+          console.error("Failed to push order:", response.data);
+        }
+      } catch (error) {
+        console.error("Error posting the order:", error);
+      }
+    };
+
+    // Example trigger for posting order
+    // Uncomment to enable this on component mount
+    // postOrder();
   }, [id]);
 
   if (loading) {
@@ -55,7 +87,7 @@ const Orders = () => {
             <div className="order-products">
               <h3>Products:</h3>
               <ul>
-                {order.products.map((product) => (
+                {order.Product.map((product) => (
                   <li key={product.productId}>
                     {product.name} - ₹{product.price} x {product.quantity}
                   </li>

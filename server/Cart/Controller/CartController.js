@@ -11,7 +11,8 @@ export const addToCart = async (req, res) => {
   if (!userId || !productId) {
     return res.status(400).json({
       success: false,
-      message: "Both fields (userId and productId) are required and should be valid.",
+      message:
+        "Both fields (userId and productId) are required and should be valid.",
     });
   }
 
@@ -68,55 +69,28 @@ export const addToCart = async (req, res) => {
 };
 
 export const getCartProducts = async (req, res) => {
-  const prisma = getPrismaInstance();
-  const { userId } = req.params;
-
-  // Validate userId
-  if (!userId || isNaN(userId)) {
-    return res.status(400).json({
-      success: false,
-      message: "User Id is required and should be a valid number.",
-    });
-  }
-
   try {
-    // Fetch the cart and include the associated products
+    const prisma = getPrismaInstance();
+
+    const userId = req.params.userId; // or wherever userId comes from
     const cart = await prisma.cart.findUnique({
-      where: { userId: parseInt(userId) },
+      where: { userId: parseInt(userId) }, // Ensure userId is an integer
       include: {
-        CartProduct: {
+        CartProducts: {
           include: {
-            product: true,
+            Product: true, // Ensure this relation exists in `CartProduct`
           },
         },
       },
     });
 
-    // If no cart found for the user
     if (!cart) {
-      return res.status(404).json({
-        success: false,
-        message: "Cart not found for the specified user.",
-      });
+      return res.status(404).json({ message: "Cart not found" });
     }
 
-    // Map the cart products to the response format
-    const cartProducts = cart.CartProduct.map((cartProduct) => ({
-      productId: cartProduct.productId,
-      quantity: cartProduct.quantity,
-      product: cartProduct.product,
-    }));
-
-    return res.status(200).json({
-      success: true,
-      data: cartProducts,
-    });
+    res.status(200).json(cart);
   } catch (error) {
     console.error("Error fetching the cart products:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch the cart products.",
-      error: error.message,
-    });
+    res.status(500).json({ error: "Error fetching the cart products" });
   }
 };
