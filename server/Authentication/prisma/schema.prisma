@@ -7,6 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Cart {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @unique
+  User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  CartProduct CartProduct[]
+  Order       Order?
+}
+
+model CartProduct {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int     @default(1)
+  Cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
 model Details {
   id       Int     @id @default(autoincrement())
   fullName String
@@ -38,23 +55,6 @@ model User {
   Cart      Cart?
   Details   Details?
   Order     Order[]
-}
-
-model Cart {
-  id          Int           @id @default(autoincrement())
-  userId      Int           @unique
-  User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  CartProduct CartProduct[]
-  Order       Order?
-}
-
-model CartProduct {
-  id        Int     @id @default(autoincrement())
-  cartId    Int
-  productId Int
-  quantity  Int     @default(1)
-  Cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Order {

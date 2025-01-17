@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./Cart.scss"; // Import your styling
 import { useNavigate } from "react-router-dom";
+
 const Cart = () => {
   const { id } = useParams(); // Get the userId from the URL params
   console.log("User ID:", id);
@@ -10,6 +11,7 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
   // Calculate total price
   const calculateTotal = () => {
     return cart.reduce((total, cartProduct) => {
@@ -43,14 +45,64 @@ const Cart = () => {
   if (error) return <div className="error">{error}</div>;
 
   const total = cart ? calculateTotal() : 0;
+
+  // Function to push order to the database
+  const pushOrder = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:2000/order/pushOrder`,
+        {
+          userId: id,
+          price: total,
+          payment: "Online",
+          cartId: cart?.id, // Use `cart.id` instead of assuming all items belong to the same cart ID
+        }
+      );
+
+      if (response.data.success) {
+        console.log("Order pushed successfully:", response.data);
+        return true;
+      } else {
+        alert("Failed to place the order. Please try again.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error pushing order:", error);
+      alert("An error occurred while placing the order.");
+      return false;
+    }
+  };
+
+  // Function to handle payment
+  const handlePayment = async () => {
+    try {
+      const response = await axios.post("http://localhost:9000/payment", {
+        price: total,
+      });
+
+      if (response.status === 200) {
+        console.log("Payment successful:", response.data);
+        return true; // Indicate success
+      } else {
+        alert("Payment failed. Please try again.");
+        return false; // Indicate failure
+      }
+    } catch (error) {
+      console.error("Error during payment:", error);
+      alert("An error occurred during payment.");
+      return false; // Indicate failure
+    }
+  };
+
+  // Combined function to handle both actions
   const paymentsFunc = async () => {
-    // navigate(`/userdetails/${id}`);
-    let response = await axios.post("http://localhost:9000/payment", {
-      price: total,
-    });
-    if (response.status === 200) {
-      console.log(response.data);
-      alert("Payment Successful");
+    const paymentSuccess = await handlePayment();
+    if (paymentSuccess) {
+      const orderSuccess = await pushOrder();
+      if (orderSuccess) {
+        alert("Payment and Order successful!");
+        navigate(`/home/${id}`); // Navigate to home page after success
+      }
     }
   };
 

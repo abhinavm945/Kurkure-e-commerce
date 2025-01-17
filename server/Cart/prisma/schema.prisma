@@ -17,6 +17,7 @@ model User {
   profile   String
   cart      Cart?
   details   Details?
+  Order     Order[]
 }
 
 model Cart {
@@ -24,6 +25,7 @@ model Cart {
   userId   Int           @unique
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   products CartProduct[]
+  Order    Order?
 }
 
 model Product {
@@ -53,4 +55,14 @@ model Details {
   address  String?
   userId   Int     @unique
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  cartId  Int    @unique
+  payment String
+  price   Int
+  Cart    Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  User    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
