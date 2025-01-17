@@ -9,7 +9,8 @@ import Products from "./components/Products/Products";
 import Orders from "./components/Orders/Orders";
 import Cart from "./components/Cart/Cart";
 import ProductDetail from "./components/SingleProduct/ProductDetail";
-
+import Success from "./components/Success/Success"
+import Cancel from "./components/Cancel/Cancel"
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="/userdetails/:id" element={<UserDetails />} />
         <Route path="/addproduct" element={<AddProduct />} />
         <Route path="/product" element={<Products />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/order/:id" element={<Orders />} />
         <Route path="/cart/:id" element={<Cart />} />
