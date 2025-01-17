@@ -23,17 +23,29 @@ export const pushOrder = async (req, res) => {
     const cart = await prisma.cart.findUnique({
       where: { id: cartId },
       include: {
-        products: { // Relation name based on your schema
+        CartProduct: { // Correct relation name
           include: {
-            product: true, // Includes product details from CartProduct
+            Product: true, // Access the 'product' relation defined in CartProduct
           },
         },
       },
     });
 
-    if (!cart || cart.products.length === 0) {
+    if (!cart || cart.CartProduct.length === 0) {
       return res.status(400).json({ success: false, message: "Cart is empty." });
     }
+
+    const existingOrder = await prisma.order.findUnique({
+      where: { cartId },
+    });
+    
+    if (existingOrder) {
+      return res.status(400).json({
+        success: false,
+        message: "This cart has already been used for an order.",
+      });
+    }
+    
 
     const newOrder = await prisma.order.create({
       data: {
@@ -43,20 +55,30 @@ export const pushOrder = async (req, res) => {
         cartId,
       },
       include: {
-        cart: {
+        Cart: {
           include: {
-            products: {
+            CartProduct: {
               include: {
-                product: true,
+                Product: true,
               },
             },
           },
         },
       },
     });
-
+    
     // Clear the cart after creating the order
     await prisma.cartProduct.deleteMany({ where: { cartId } });
+    
+    return res.status(201).json({
+      success: true,
+      message: "Order created successfully.",
+      data: newOrder,
+    });
+    
+
+    // Clear the cart after creating the order
+    // await prisma.cartProduct.deleteMany({ where: { cartId } });
 
     return res.status(201).json({
       success: true,
@@ -72,6 +94,7 @@ export const pushOrder = async (req, res) => {
     });
   }
 };
+
 
 /**
  * Fetch orders for a specific user.
@@ -92,7 +115,7 @@ export const getOrder = async (req, res) => {
       include: {
         cart: {
           include: {
-            products: { include: { product: true } },
+            CartProduct: { include: { product: true } },
           },
         },
       },
@@ -108,7 +131,7 @@ export const getOrder = async (req, res) => {
       id: order.id,
       payment: order.payment,
       price: order.price,
-      products: order.cart.products.map((cartProduct) => ({
+      products: order.cart.CartProduct.map((cartProduct) => ({
         productId: cartProduct.product.id,
         name: cartProduct.product.name,
         price: cartProduct.product.price,
