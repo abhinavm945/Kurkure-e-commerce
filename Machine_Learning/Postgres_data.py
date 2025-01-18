@@ -16,7 +16,7 @@ def fetch_orders():
 
     # Query to fetch orders
     query = """
-SELECT "userId","cartId" FROM "Order";
+SELECT "categories" FROM "OrderProduct";
 """
     df = pd.read_sql(query, conn)
 

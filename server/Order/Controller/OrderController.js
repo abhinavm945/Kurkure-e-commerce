@@ -42,16 +42,16 @@ export const pushOrder = async (req, res) => {
       });
     }
 
-    const existingOrder = await prisma.order.findUnique({
-      where: { cartId: parseInt(cartId) },
-    });
+    // const existingOrder = await prisma.order.findUnique({
+    //   where: { cartId: parseInt(cartId) },
+    // });
 
-    if (existingOrder) {
-      return res.status(400).json({
-        success: false,
-        message: "This cart has already been used for an order.",
-      });
-    }
+    // if (existingOrder) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "This cart has already been used for an order.",
+    //   });
+    // }
 
     const newOrder = await prisma.order.create({
       data: {
