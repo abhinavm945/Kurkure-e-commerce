@@ -17,7 +17,13 @@ const Orders = () => {
           `http://localhost:2000/order/getOrder/${id}`
         );
         if (response.data.success) {
-          setOrders(response.data.data);
+          const formattedOrders = response.data.data.map((order) => ({
+            id: order.id,
+            payment: order.payment,
+            price: order.price,
+            products: order.products || [], // Ensure products array exists
+          }));
+          setOrders(formattedOrders);
         } else {
           setError(response.data.message || "Failed to load orders.");
         }
@@ -30,37 +36,6 @@ const Orders = () => {
     };
 
     fetchOrders();
-  }, [id]);
-
-  // Post a new order (example usage)
-  useEffect(() => {
-    const postOrder = async () => {
-      try {
-        const response = await axios.post(
-          "http://localhost:2000/order/pushOrder",
-          {
-            userId: id, // User ID from the URL params
-            price: 500, // Example price
-            payment: "Online", // Payment method
-            cartId: 1, // Example cart ID
-          }
-        );
-
-        if (response.data.success) {
-          console.log("Order successfully pushed:", response.data);
-          // Optionally refetch orders after posting
-          setOrders((prevOrders) => [...prevOrders, response.data.data]);
-        } else {
-          console.error("Failed to push order:", response.data);
-        }
-      } catch (error) {
-        console.error("Error posting the order:", error);
-      }
-    };
-
-    // Example trigger for posting order
-    // Uncomment to enable this on component mount
-    // postOrder();
   }, [id]);
 
   if (loading) {
@@ -87,9 +62,11 @@ const Orders = () => {
             <div className="order-products">
               <h3>Products:</h3>
               <ul>
-                {order.Product.map((product) => (
+                {order.products.map((product) => (
                   <li key={product.productId}>
-                    {product.name} - ₹{product.price} x {product.quantity}
+                    <strong>{product.name}</strong> - ₹{product.price} x {product.quantity}
+                    <p>{product.description}</p>
+                    <p>Categories: {product.categories.join(", ")}</p>
                   </li>
                 ))}
               </ul>

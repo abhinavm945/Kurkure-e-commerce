@@ -6,7 +6,7 @@ import getPrismaInstance from "../utils/PrismaClient.js";
 export const pushOrder = async (req, res) => {
   try {
     const prisma = getPrismaInstance();
-    const { userId, payment, price, cartId } = req.body;
+    const { userId, payment, price, cartId } = req.body; // Extract parameters from the request params
 
     if (!userId || !payment || !price || !cartId) {
       return res.status(400).json({
@@ -15,7 +15,9 @@ export const pushOrder = async (req, res) => {
       });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+    });
     if (!user) {
       return res
         .status(404)
@@ -23,25 +25,25 @@ export const pushOrder = async (req, res) => {
     }
 
     const cart = await prisma.cart.findUnique({
-      where: { id: cartId },
+      where: { id: parseInt(cartId) },
       include: {
-        CartProducts: {
-          // Correct relation name
+        CartProduct: {
           include: {
-            Product: true, // Access the 'product' relation defined in CartProduct
+            Product: true,
           },
         },
       },
     });
 
-    if (!cart || cart.CartProducts.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Cart is empty." });
+    if (!cart || cart.CartProduct.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart is empty.",
+      });
     }
 
     const existingOrder = await prisma.order.findUnique({
-      where: { cartId },
+      where: { cartId: parseInt(cartId) },
     });
 
     if (existingOrder) {
@@ -53,35 +55,31 @@ export const pushOrder = async (req, res) => {
 
     const newOrder = await prisma.order.create({
       data: {
-        userId,
+        userId: parseInt(userId),
         payment,
-        price,
-        cartId,
-      },
-      include: {
-        Cart: {
-          include: {
-            CartProducts: {
-              include: {
-                Product: true,
-              },
-            },
-          },
+        price: parseFloat(price),
+        cartId: parseInt(cartId),
+        OrderProduct: {
+          create: cart.CartProduct.map((cartProduct) => ({
+            userId: parseInt(userId),
+            productId: cartProduct.productId,
+            name: cartProduct.Product.name,
+            description: cartProduct.Product.description,
+            price: cartProduct.Product.price,
+            categories: cartProduct.Product.categories,
+            quantity: cartProduct.quantity,
+          })),
         },
       },
+      include: {
+        OrderProduct: true,
+      },
     });
 
     // Clear the cart after creating the order
-    await prisma.cartProduct.deleteMany({ where: { cartId } });
-
-    return res.status(201).json({
-      success: true,
-      message: "Order created successfully.",
-      data: newOrder,
+    await prisma.cartProduct.deleteMany({
+      where: { cartId: parseInt(cartId) },
     });
-
-    // Clear the cart after creating the order
-    // await prisma.cartProduct.deleteMany({ where: { cartId } });
 
     return res.status(201).json({
       success: true,
@@ -103,59 +101,54 @@ export const pushOrder = async (req, res) => {
  */
 export const getOrder = async (req, res) => {
   try {
-      const prisma = getPrismaInstance();
-      const { userId } = req.params;
+    const prisma = getPrismaInstance();
+    const { userId } = req.params;
 
-      if (!userId) {
-          return res.status(400).json({
-              success: false,
-              message: "User ID is required.",
-          });
-      }
-
-      const orders = await prisma.order.findMany({
-          where: { userId: parseInt(userId) },
-          include: {
-              Cart: {
-                  include: {
-                      CartProducts: { include: { Product: true } },
-                  },
-              },
-          },
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required.",
       });
+    }
 
-      // Debugging output to verify query result
-      console.log("Orders Data:", JSON.stringify(orders, null, 2));
+    const orders = await prisma.order.findMany({
+      where: { userId: parseInt(userId) },
+      include: {
+        OrderProduct: true,
+      },
+    });
 
-      if (!orders || orders.length === 0) {
-          return res.status(404).json({
-              success: false,
-              message: "No orders found for this user.",
-          });
-      }
-
-      const formattedOrders = orders.map((order) => ({
-          id: order.id,
-          payment: order.payment,
-          price: order.price,
-          Product: order.Cart?.CartProducts?.map((cartProduct) => ({
-              productId: cartProduct.Product?.id,
-              name: cartProduct.Product?.name,
-              price: cartProduct.Product?.price,
-              quantity: cartProduct.quantity,
-          })), // Empty array if no CartProducts
-      }));
-
-      return res.status(200).json({
-          success: true,
-          message: "Orders retrieved successfully.",
-          data: formattedOrders,
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No orders found for this user.",
       });
+    }
+
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      payment: order.payment,
+      price: order.price,
+      products: order.OrderProduct.map((orderProduct) => ({
+        productId: orderProduct.productId,
+        name: orderProduct.name,
+        description: orderProduct.description,
+        price: orderProduct.price,
+        categories: orderProduct.categories,
+        quantity: orderProduct.quantity,
+      })),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Orders retrieved successfully.",
+      data: formattedOrders,
+    });
   } catch (error) {
-      console.error("Error in getOrder:", error);
-      return res.status(500).json({
-          success: false,
-          message: "Internal server error.",
-      });
+    console.error("Error in getOrder:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
   }
 };

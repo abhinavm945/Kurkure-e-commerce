@@ -11,7 +11,7 @@ model Cart {
   id          Int           @id @default(autoincrement())
   userId      Int           @unique
   User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  CartProducts CartProduct[]
+  CartProduct CartProduct[]
   Order       Order?
 }
 
@@ -20,10 +20,9 @@ model CartProduct {
   cartId    Int
   productId Int
   quantity  Int     @default(1)
-  Cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade) // Correct reference
+  Cart      Cart    @relation(fields: [cartId], references: [userId], onDelete: Cascade)
   Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
-
 
 model Details {
   id       Int     @id @default(autoincrement())
@@ -35,35 +34,54 @@ model Details {
 }
 
 model Order {
-  id      Int    @id @default(autoincrement())
-  userId  Int
-  cartId  Int    @unique
-  payment String
-  price   Int
-  Cart    Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  User    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           Int            @id @default(autoincrement())
+  userId       Int
+  cartId       Int            @unique
+  payment      String
+  price        Int
+  Cart         Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  User         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  OrderProduct OrderProduct[]
+}
+
+model OrderProduct {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  orderId     Int
+  productId   Int
+  name        String
+  description String
+  price       Decimal
+  categories  String[]
+  quantity    Int      @default(1)
+  Order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Product {
-  id          Int           @id @default(autoincrement())
-  name        String
-  description String
-  price       Decimal       @default(0.0) @db.Decimal
-  stock       Int
-  image       String?
-  createdAt   DateTime      @default(now())
-  CartProduct CartProduct[]
+  id           Int            @id @default(autoincrement())
+  name         String
+  description  String
+  price        Decimal        @default(0.0) @db.Decimal
+  stock        Int
+  image        String?
+  createdAt    DateTime       @default(now())
+  categories   String[]
+  CartProduct  CartProduct[]
+  OrderProduct OrderProduct[]
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  username  String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  profile   String
-  Cart      Cart?
-  Details   Details?
-  Order     Order[]
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  username     String         @unique
+  password     String
+  createdAt    DateTime       @default(now())
+  profile      String
+  Cart         Cart?
+  Details      Details?
+  Order        Order[]
+  OrderProduct OrderProduct[]
 }
