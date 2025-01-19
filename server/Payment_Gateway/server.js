@@ -15,6 +15,9 @@ app.get("/", (req, res) => {
 });
 app.post("/payment", async (req, res) => {
   const { products } = req.body;
+  console.log(products)
+  
+  
   try {
     const lineItems = products.map((product) => ({
       price_data: {
@@ -22,7 +25,7 @@ app.post("/payment", async (req, res) => {
         product_data: {
           name: product.name,
         },
-        unit_amount: Math.round(product.price * 100),
+        unit_amount: Math.round(product.price),
       },
       quantity: product.quantity,
     }));

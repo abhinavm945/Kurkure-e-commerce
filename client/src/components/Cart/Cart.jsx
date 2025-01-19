@@ -8,7 +8,7 @@ const Cart = () => {
   const { id } = useParams(); // Get the userId from the URL params
   console.log("User ID:", id);
 
-  const [cart, setCart] = useState(); // State to hold the cart data
+  const [cart, setCart] = useState(null); // State to hold the cart data
   const [loading, setLoading] = useState(true); // State to indicate loading status
   const [error, setError] = useState(null); // State to hold error messages
 
@@ -19,7 +19,6 @@ const Cart = () => {
     }, 0);
   };
 
-  // Fetch cart data
   useEffect(() => {
     const fetchCartProducts = async () => {
       try {
@@ -27,6 +26,7 @@ const Cart = () => {
           `http://localhost:8084/cart/getCart/${id}`
         );
         setCart(response.data); // Set the cart data
+        console.log(response)
       } catch (err) {
         console.error("Error fetching cart products:", err);
         setError("Failed to fetch cart products. Please try again later.");
@@ -37,27 +37,26 @@ const Cart = () => {
 
     fetchCartProducts();
   }, [id]);
-
+console.log(cart);
   const total = cart && cart.CartProducts.length > 0 ? calculateTotal() : 0;
 
   // Function to push the order
   const pushOrder = async () => {
     try {
-      // Log the request body for debugging
       console.log({
         userId: id,
         price: total,
         payment: "Online",
         cartId: cart?.id,
       });
-  
+
       const response = await axios.post(`http://localhost:2000/order/pushOrder`, {
         userId: id,
         price: total,
         payment: "Online",
         cartId: cart?.id,
       });
-  
+
       if (response.data.success) {
         console.log("Order pushed successfully:", response.data);
         return true;
@@ -71,7 +70,6 @@ const Cart = () => {
       return false;
     }
   };
-  
 
   // Handle payment processing
   const paymentsFunc = async () => {
@@ -79,26 +77,27 @@ const Cart = () => {
       name: cartProduct.Product.name,
       price: cartProduct.Product.price,
       quantity: cartProduct.quantity,
+      
     }));
-
+    
     try {
-      // Push the order before redirecting to payment
       const orderSuccess = await pushOrder();
       if (!orderSuccess) return;
-
+      
       const stripe = await loadStripe(
         `pk_test_51NSixySI3j3qXOu7sO4QJ9ZeZkBCZ8BTApSHMmBRa6cNpnMpDwuK3sv4n5HeYK89BRVO68y1npr1AelDAoiAbsru0091Tqtxil`
       );
-
+      
       const response = await axios.post("http://localhost:9000/payment", {
         products: formattedCart,
       });
-
+      console.log(response);
+      
       const { id } = response.data;
       const result = await stripe.redirectToCheckout({
         sessionId: id,
       });
-
+      
       if (result.error) {
         console.error("Stripe error:", result.error.message);
       }
@@ -134,6 +133,20 @@ const Cart = () => {
                 <p className="cart-item-quantity">
                   Quantity: {cartProduct.quantity}
                 </p>
+                {/* Display Categories */}
+                {cartProduct.Product.categories && (
+                  <p className="cart-item-categories">
+                    Categories:{" "}
+                    {cartProduct.Product.categories.map((category, index) => (
+                      <span key={index} className="category-item">
+                        {category}
+                        {index < cartProduct.Product.categories.length - 1
+                          ? ", "
+                          : ""}
+                      </span>
+                    ))}
+                  </p>
+                )}
               </div>
             </div>
           ))}
