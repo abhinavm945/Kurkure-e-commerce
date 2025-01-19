@@ -12,31 +12,33 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-const addToCart=async ()=>{
-try {
-  const response=await axios.post("http://localhost:8084/cart/addToCart",
-    {userId,productId}
-  );
-if(response.data.success){
-  alert(response.data.message || "Product is added to the cart.")
-}else{
-  alert(response.data.message || "failed to add the Product to the cart."
-  )
-}
-} catch (err) {
-  console.error("Error adding product to cart:", err);
+
+  const addToCart = async () => {
+    try {
+      const response = await axios.post("http://localhost:8084/cart/addToCart", {
+        userId,
+        productId,
+      });
+      if (response.data.success) {
+        alert(response.data.message || "Product is added to the cart.");
+      } else {
+        alert(response.data.message || "Failed to add the product to the cart.");
+      }
+    } catch (err) {
+      console.error("Error adding product to cart:", err);
       alert("Failed to add product to cart. Please try again later.");
-}
-}
-const nav = () => {
-  navigate(`/cart/${userId}`);
-};
+    }
+  };
 
+  const nav = () => {
+    navigate(`/cart/${userId}`);
+  };
 
-const handleBuyNow = () => {
-  addToCart(); 
-  nav(); 
-};
+  const handleBuyNow = () => {
+    addToCart();
+    nav();
+  };
+
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -71,15 +73,31 @@ const handleBuyNow = () => {
         {/* Information Section */}
         <div className="product-info">
           <h1 className="product-title">{product.name}</h1>
-          <div className="product-rating">
-            ★★★★☆ (4.5) {/* Placeholder for a star rating */}
-          </div>
+          <div className="product-rating">★★★★☆ (4.5) {/* Placeholder for a star rating */}</div>
           <p className="product-price">Price: ₹{product.price}</p>
           <p className="product-description">{product.description}</p>
           <p className="product-stock">Stock: {product.stock > 0 ? "In Stock" : "Out of Stock"}</p>
+
+          {/* Categories Section */}
+          {product.categories && product.categories.length > 0 && (
+            <div className="product-categories">
+              <h4>Categories:</h4>
+              {product.categories.map((category, index) => (
+                <span key={index} className="category-item">
+                  {category}
+                  {index < product.categories.length - 1 && ", "}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="product-actions">
-            <button className="buy-now-button" onClick={handleBuyNow}>Buy Now</button>
-            <button className="add-to-cart-button" onClick={addToCart}>Add to Cart</button>
+            <button className="buy-now-button" onClick={handleBuyNow}>
+              Buy Now
+            </button>
+            <button className="add-to-cart-button" onClick={addToCart}>
+              Add to Cart
+            </button>
           </div>
         </div>
       </div>

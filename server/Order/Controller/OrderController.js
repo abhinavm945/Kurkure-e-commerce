@@ -6,7 +6,7 @@ import getPrismaInstance from "../utils/PrismaClient.js";
 export const pushOrder = async (req, res) => {
   try {
     const prisma = getPrismaInstance();
-    const { userId, payment, price, cartId } = req.body; // Extract parameters from the request params
+    const { userId, payment, price, cartId } = req.body;
 
     if (!userId || !payment || !price || !cartId) {
       return res.status(400).json({
@@ -15,6 +15,7 @@ export const pushOrder = async (req, res) => {
       });
     }
 
+    // Validate user
     const user = await prisma.user.findUnique({
       where: { id: parseInt(userId) },
     });
@@ -24,10 +25,11 @@ export const pushOrder = async (req, res) => {
         .json({ success: false, message: "User not found." });
     }
 
+    // Validate cart
     const cart = await prisma.cart.findUnique({
       where: { id: parseInt(cartId) },
       include: {
-        CartProduct: {
+        CartProducts: {
           include: {
             Product: true,
           },
@@ -35,24 +37,42 @@ export const pushOrder = async (req, res) => {
       },
     });
 
-    if (!cart || cart.CartProduct.length === 0) {
+    if (!cart || cart.CartProducts.length === 0) {
       return res.status(400).json({
         success: false,
         message: "Cart is empty.",
       });
     }
 
-    // const existingOrder = await prisma.order.findUnique({
-    //   where: { cartId: parseInt(cartId) },
-    // });
+    // Check if an order already exists with the same cartId
+    let existingOrder = await prisma.order.findUnique({
+      where: { cartId: parseInt(cartId) },
+      include: { OrderProduct: true },
+    });
 
-    // if (existingOrder) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "This cart has already been used for an order.",
-    //   });
-    // }
+    if (existingOrder) {
+      // Append new products to the existing order
+      const newProducts = cart.CartProducts.map((cartProduct) => ({
+        userId: parseInt(userId),
+        productId: cartProduct.productId,
+        name: cartProduct.Product.name,
+        description: cartProduct.Product.description,
+        price: cartProduct.Product.price,
+        categories: cartProduct.Product.categories,
+        quantity: cartProduct.quantity,
+        orderId: existingOrder.id, // Link products to the existing order
+      }));
 
+      await prisma.orderProduct.createMany({ data: newProducts });
+
+      return res.status(200).json({
+        success: true,
+        message: "Order updated with new products.",
+        data: existingOrder,
+      });
+    }
+
+    // If no existing order, create a new one
     const newOrder = await prisma.order.create({
       data: {
         userId: parseInt(userId),
@@ -60,7 +80,7 @@ export const pushOrder = async (req, res) => {
         price: parseFloat(price),
         cartId: parseInt(cartId),
         OrderProduct: {
-          create: cart.CartProduct.map((cartProduct) => ({
+          create: cart.CartProducts.map((cartProduct) => ({
             userId: parseInt(userId),
             productId: cartProduct.productId,
             name: cartProduct.Product.name,
@@ -71,9 +91,7 @@ export const pushOrder = async (req, res) => {
           })),
         },
       },
-      include: {
-        OrderProduct: true,
-      },
+      include: { OrderProduct: true },
     });
 
     // Clear the cart after creating the order
@@ -95,7 +113,6 @@ export const pushOrder = async (req, res) => {
     });
   }
 };
-
 /**
  * Fetch orders for a specific user.
  */
