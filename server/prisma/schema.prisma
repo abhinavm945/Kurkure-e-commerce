@@ -41,7 +41,7 @@ model Order {
   price         Int
   Cart          Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   User          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  OrderProducts OrderProduct[] // Relation to OrderProduct
+  OrderProducts OrderProduct[]
 }
 
 model OrderProduct {
@@ -49,10 +49,10 @@ model OrderProduct {
   userId      Int
   orderId     Int
   productId   Int
-  name        String // Product name at the time of the order
-  description String // Product description at the time of the order
-  price       Decimal // Product price at the time of the order
-  categories  String[] // Allows multiple categories
+  name        String
+  description String
+  price       Decimal
+  categories  String[]
   quantity    Int      @default(1)
   Order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   Product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -67,9 +67,9 @@ model Product {
   stock        Int
   image        String?
   createdAt    DateTime       @default(now())
-  categories   String[] // Allows multiple categories
+  categories   String[]
   CartProduct  CartProduct[]
-  OrderProduct OrderProduct[] // Relation to OrderProduct
+  OrderProduct OrderProduct[]
 }
 
 model User {
@@ -83,5 +83,5 @@ model User {
   Cart         Cart?
   Details      Details?
   Order        Order[]
-  OrderProduct OrderProduct[] // Relation to OrderProduct
+  OrderProduct OrderProduct[]
 }

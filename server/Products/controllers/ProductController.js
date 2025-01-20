@@ -1,11 +1,8 @@
-import { json } from "express";
 import getPrismaInstance from "../utils/PrismaClient.js";
 
 export const createProduct = async (req, res) => {
     const prisma = getPrismaInstance();
     const { name, description, price, stock, image, categories } = req.body;
-
- 
 
     if (!name || !description || !price || !stock || !categories) {
         return res.status(400).json({
@@ -29,9 +26,10 @@ export const createProduct = async (req, res) => {
                 price: parseFloat(price),
                 stock: parseInt(stock, 10),
                 image,
-                categories,
+                categories, // Array of strings
             },
         });
+
         res.status(201).json({ success: true, data: newProduct });
     } catch (error) {
         console.error("Error creating product:", error);
@@ -39,21 +37,21 @@ export const createProduct = async (req, res) => {
     }
 };
 
-
 export const getProducts = async (req, res) => {
     const prisma = getPrismaInstance();
     try {
         const products = await prisma.product.findMany();
         res.status(200).json({ success: true, data: products });
     } catch (error) {
-        console.log("Not able to fetch the Products from the database:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch the Products" });
+        console.error("Failed to fetch products:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch products" });
     }
-}
+};
 
 export const getProductById = async (req, res) => {
     const prisma = getPrismaInstance();
     const { id } = req.params;
+
     try {
         const productById = await prisma.product.findUnique({
             where: {
@@ -67,15 +65,16 @@ export const getProductById = async (req, res) => {
                 message: "Product not found",
             });
         }
+
         res.status(200).json({
             success: true,
             data: productById,
         });
     } catch (error) {
-        console.log("Error Fetching the product Detail:", error);
+        console.error("Error fetching product detail:", error);
         res.status(500).json({
             success: false,
-            message: "Failed to fetch",
+            message: "Failed to fetch product",
         });
     }
-}
+};
