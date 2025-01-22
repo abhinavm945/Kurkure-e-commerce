@@ -8,6 +8,7 @@ export const pushOrder = async (req, res) => {
     const prisma = getPrismaInstance();
     const { userId, payment, price, cartId } = req.body;
 
+    // Validate input
     if (!userId || !payment || !price || !cartId) {
       return res.status(400).json({
         success: false,
@@ -15,7 +16,7 @@ export const pushOrder = async (req, res) => {
       });
     }
 
-    // Validate user
+    // Check if the user exists
     const user = await prisma.user.findUnique({
       where: { id: parseInt(userId) },
     });
@@ -25,11 +26,11 @@ export const pushOrder = async (req, res) => {
         .json({ success: false, message: "User not found." });
     }
 
-    // Validate cart
+    // Check if the cart exists and contains products
     const cart = await prisma.cart.findUnique({
       where: { id: parseInt(cartId) },
       include: {
-        CartProducts: {
+        CartProducts: { // Ensure this matches the schema
           include: {
             Product: true,
           },
@@ -40,12 +41,12 @@ export const pushOrder = async (req, res) => {
     if (!cart || cart.CartProducts.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Cart is empty.",
+        message: "Cart is empty or does not exist.",
       });
     }
 
-    // Check if an order already exists with the same cartId
-    let existingOrder = await prisma.order.findUnique({
+    // Check if an order already exists for the given cartId
+    const existingOrder = await prisma.order.findUnique({
       where: { cartId: parseInt(cartId) },
       include: { OrderProduct: true },
     });
@@ -60,7 +61,7 @@ export const pushOrder = async (req, res) => {
         price: cartProduct.Product.price,
         categories: cartProduct.Product.categories,
         quantity: cartProduct.quantity,
-        orderId: existingOrder.id, // Link products to the existing order
+        orderId: existingOrder.id,
       }));
 
       await prisma.orderProduct.createMany({ data: newProducts });
@@ -72,7 +73,7 @@ export const pushOrder = async (req, res) => {
       });
     }
 
-    // If no existing order, create a new one
+    // Create a new order
     const newOrder = await prisma.order.create({
       data: {
         userId: parseInt(userId),
@@ -113,6 +114,7 @@ export const pushOrder = async (req, res) => {
     });
   }
 };
+
 /**
  * Fetch orders for a specific user.
  */

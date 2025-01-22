@@ -37,7 +37,7 @@ const Signup = () => {
 
       if (data.status) {
         alert("Signup successful!");
-        navigate(`/home/${data.data.username}`);
+        navigate(`/`);
       } else {
         alert(data.msg || "An error occurred during signup.");
       }
