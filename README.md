@@ -4,6 +4,9 @@ Overview
 
 
 
+https://github.com/user-attachments/assets/7bf6b017-2a56-4abd-b349-2b4d5a1c2552
+
+
 This project is a fully functional e-commerce platform developed using a microservices architecture. Each service is dedicated to a specific functionality and runs independently. The services are:
 
 UserAuth: Handles user authentication.
@@ -136,7 +139,7 @@ pip install -r requirements.txt
 
 Start the machine learning script:
 
-python recommend.py
+python Postgres_data.py
 
 The terminal will display recommendations based on the provided input.
 
